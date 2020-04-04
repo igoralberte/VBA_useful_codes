@@ -1,4 +1,3 @@
-Attribute VB_Name = "Módulo1"
 '***************************************************************************
 'Purpose: to find out the first empty row, based on a last used column
 'Inputs:
@@ -25,7 +24,7 @@ Do While True
         col = col + 1
     Loop
     
-    'Apos todas as colunas, a linha é tida como vazia
+    'Apos todas as colunas, a linha Ã© tida como vazia
     If linhaVazia = True Then
         primeiraLinhaVazia = lin
         Exit Function
