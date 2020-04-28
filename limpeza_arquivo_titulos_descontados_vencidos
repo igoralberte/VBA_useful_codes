@@ -1,0 +1,70 @@
+'ROTINA DE INICIALIZAÇÃO QUE DEVE SER EXECUTADA ANTES DO CÓDIGO:
+'1 - Desmesclar células
+'2 - Apagar colunas de forma que
+'   A) Coluna A tenha o código e nome do cliente
+'   B) Coluna F tenha as palavras "Total Cliente:"
+'   C) Coluna R tenha o valor total do cliente
+'O código deve ser executado por partes na ordem em que aparece
+
+Public Sub LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P1()
+
+Dim ws As Worksheet
+Set ws = ActiveSheet
+
+'Apagar linhas em que coluna A estiver vazia e que coluna F
+'for diferente de "Total Cliente:"
+For I = 1000 To 1 Step -1
+    If Not ( _
+        (IsEmpty(ws.Cells(I, 1).Value) = False And IsEmpty(ws.Cells(I, 3)) = True) Or _
+        (StrComp(ws.Cells(I, 6).Value, "Total Cliente:") = 0)) Then
+       ws.Rows(I).EntireRow.Delete
+    End If
+Next
+
+
+End Sub
+
+Public Sub LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P2()
+
+Dim ws As Worksheet
+Set ws = ActiveSheet
+
+'Apagar linhas subsequentes em que a coluna A não estiver vazia
+For I = 1000 To 1 Step -1
+    If IsEmpty(ws.Cells(I + 1, 1).Value) = False And _
+        IsEmpty(ws.Cells(I, 1).Value) = False Then
+        ws.Rows(I).EntireRow.Delete
+    End If
+Next
+
+End Sub
+
+Public Sub LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P3()
+
+Dim ws As Worksheet
+Set ws = ActiveSheet
+Dim modulo As Integer
+
+'Copiar o total para a frente dos nomes dos clientes
+For I = 1000 To 1 Step -1
+    modulo = I Mod 2
+    If modulo = 1 Then
+        ws.Cells(I, 18).Value = ws.Cells(I + 1, 18)
+    End If
+Next
+
+End Sub
+
+'Apagar linhas que tenham somente o Total
+Public Sub LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P4()
+
+Dim ws As Worksheet
+Set ws = ActiveSheet
+
+For I = 1000 To 1 Step -1
+    If IsEmpty(ws.Cells(I, 1).Value) = True Then
+        ws.Rows(I).EntireRow.Delete
+    End If
+Next
+
+End Sub
