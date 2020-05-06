@@ -1,21 +1,63 @@
 'ROTINA DE INICIALIZAÇÃO QUE DEVE SER EXECUTADA ANTES DO CÓDIGO:
 '1 - Desmesclar células
-'2 - Apagar colunas de forma que
-'   A) Coluna A tenha o código e nome do cliente
-'   B) Coluna F tenha as palavras "Total Cliente:"
-'   C) Coluna R tenha o valor total do cliente
-'O código deve ser executado por partes na ordem em que aparece
+'2 - Copiar a planilha ASSOCIADOS_GERENTE onde:
+'    a - na coluna J deve haver o código do cliente
+'    b - na coluna K deve haver o nome do gerente
+    
+
+'Chama todos os subprocessos
+Public Sub LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_GERAL()
+
+LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P0
+LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P1
+LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P2
+LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P3
+LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P4
+LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P5
+LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P6
+LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P7
+LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P8
+
+End Sub
+
+'Apagar linhas do cabeçalho
+'Apagar colunas definidas
+Public Sub LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P0()
+
+Dim ws As Worksheet
+Set ws = ActiveSheet
+
+'Apagar linhas do cabeçalho: da linha 1 à linha 13 inclusive
+For I = 13 To 1 Step -1
+    ws.Rows(I).EntireRow.Delete
+Next
+
+ws.Columns("C").Delete
+ws.Columns("D:E").Delete
+ws.Columns("G:M").Delete
+ws.Columns("H").Delete
+ws.Columns("J:L").Delete
+ws.Columns("K").Delete
+ws.Columns("L:M").Delete
+ws.Columns("N:Q").Delete
+ws.Columns("O:P").Delete
+ws.Columns("R:U").Delete
+
+
+
+End Sub
 
 Public Sub LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P1()
 
 Dim ws As Worksheet
 Set ws = ActiveSheet
 
-'Apagar linhas em que coluna A estiver vazia e que coluna F
+'Apagar linhas em que coluna A não tem nome de empresa ou que coluna F
 'for diferente de "Total Cliente:"
-For I = 1000 To 1 Step -1
+For I = 1200 To 1 Step -1
     If Not ( _
-        (IsEmpty(ws.Cells(I, 1).Value) = False And IsEmpty(ws.Cells(I, 3)) = True) Or _
+        (IsEmpty(ws.Cells(I, 1).Value) = False And IsEmpty(ws.Cells(I, 2).Value) = True _
+            And IsEmpty(ws.Cells(I, 3).Value) = True) Or _
         (StrComp(ws.Cells(I, 6).Value, "Total Cliente:") = 0)) Then
        ws.Rows(I).EntireRow.Delete
     End If
@@ -30,7 +72,7 @@ Dim ws As Worksheet
 Set ws = ActiveSheet
 
 'Apagar linhas subsequentes em que a coluna A não estiver vazia
-For I = 1000 To 1 Step -1
+For I = 1200 To 1 Step -1
     If IsEmpty(ws.Cells(I + 1, 1).Value) = False And _
         IsEmpty(ws.Cells(I, 1).Value) = False Then
         ws.Rows(I).EntireRow.Delete
@@ -46,7 +88,7 @@ Set ws = ActiveSheet
 Dim modulo As Integer
 
 'Copiar o total para a frente dos nomes dos clientes
-For I = 1000 To 1 Step -1
+For I = 1200 To 1 Step -1
     modulo = I Mod 2
     If modulo = 1 Then
         ws.Cells(I, 18).Value = ws.Cells(I + 1, 18)
@@ -61,10 +103,82 @@ Public Sub LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P4()
 Dim ws As Worksheet
 Set ws = ActiveSheet
 
-For I = 1000 To 1 Step -1
+For I = 1200 To 1 Step -1
     If IsEmpty(ws.Cells(I, 1).Value) = True Then
         ws.Rows(I).EntireRow.Delete
     End If
 Next
 
 End Sub
+
+'Apaga colunas que não são necessárias para a parte final
+Public Sub LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P5()
+
+Dim ws As Worksheet
+Set ws = ActiveSheet
+
+ws.Columns("B:N").Delete
+ws.Columns("C:D").Delete
+
+End Sub
+
+'Insere linha de cabeçalho
+Public Sub LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P6()
+
+Dim ws As Worksheet
+Set ws = ActiveSheet
+
+ws.Rows(1).EntireRow.Insert
+
+ws.Cells(1, 1).Value = "EMPRESA"
+ws.Cells(1, 2).Value = "TELEFONE"
+ws.Cells(1, 3).Value = "TOTAL"
+ws.Cells(1, 4).Value = "CODIGO"
+ws.Cells(1, 5).Value = "GERENTE"
+End Sub
+
+
+'Extrai os códigos dos clientes para que seja possível consultar o gerente posteriormente
+Public Sub LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P7()
+
+Dim ws As Worksheet
+Set ws = ActiveSheet
+Dim texto_sub As String
+
+For I = 2 To 1000
+    If IsEmpty(ws.Cells(I, 1)) = False Then
+        'Utiliza a fórmula para extrair o código da coluna A
+        With Application.WorksheetFunction
+            texto = .Substitute(VBA.Strings.Left(ws.Cells(I, 1).Value, .Search("-", ws.Cells(I, 1).Value) + 1), "-", "")
+            
+            ws.Cells(I, 4).Value = CDbl(texto)
+        End With
+    End If
+Next
+
+End Sub
+
+'Adiciona a coluna com o nome do gerente de cada empresa
+Public Sub LIMPEZA_TITULOS_DESCONTADOS_VENCIDOS_P8()
+
+Dim ws As Worksheet
+Set ws = ActiveSheet
+Dim texto_sub As String
+
+For I = 2 To 50
+    
+    If IsEmpty(ws.Cells(I, 1)) = False Then
+        With Application
+            texto = .VLookup(ws.Cells(I, 4).Value, Sheets("ASSOCIADOS_GERENTE").Range("J:K"), 2, False)
+            
+            If .WorksheetFunction.IsNA(texto) Then
+                ws.Cells(I, 5).Value = "GLOBAL"
+            Else
+                ws.Cells(I, 5).Value = texto
+            End If
+        End With
+    End If
+Next
+
+End Sub
+
